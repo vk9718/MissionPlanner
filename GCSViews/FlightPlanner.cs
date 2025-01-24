@@ -1096,7 +1096,13 @@ namespace MissionPlanner.GCSViews
             }
 
         }
-
+        static void DecimalToDMS(double coordinate, out int degrees, out int minutes, out double seconds)
+        {
+            degrees = (int)Math.Floor(coordinate);
+            double remainder = (coordinate - degrees) * 60;
+            minutes = (int)Math.Floor(remainder);
+            seconds = (remainder - minutes) * 60;
+        }
         /// <summary>
         /// Actualy Sets the values into the datagrid and verifys height if turned on
         /// </summary>
@@ -1113,16 +1119,16 @@ namespace MissionPlanner.GCSViews
 
 
             DataGridViewTextBoxCell cell;
-            if (alt == -2 && Commands.Columns[Alt.Index].HeaderText.ToString().StartsWith("Alt"))
+            if (alt == -2 && Commands.Columns[Alt.Index].HeaderText.Equals("Alt"))
             {
                 if (CHK_verifyheight.Checked &&
-                    (altmode) CMB_altmode.SelectedValue != altmode.Terrain) //Drag with verifyheight // use srtm data
+                    (altmode)CMB_altmode.SelectedValue != altmode.Terrain) //Drag with verifyheight // use srtm data
                 {
                     cell = Commands.Rows[selectedrow].Cells[Alt.Index] as DataGridViewTextBoxCell;
                     float ans;
                     if (float.TryParse(cell.Value.ToString(), out ans))
                     {
-                        ans = (int) ans;
+                        ans = (int)ans;
 
                         DataGridViewTextBoxCell celllat =
                             Commands.Rows[selectedrow].Cells[Lat.Index] as DataGridViewTextBoxCell;
@@ -1132,8 +1138,8 @@ namespace MissionPlanner.GCSViews
                             (int)
                             ((srtm.getAltitude(double.Parse(celllat.Value.ToString()),
                                 double.Parse(celllon.Value.ToString())).alt) * CurrentState.multiplieralt);
-                        int newsrtm = (int) ((srtm.getAltitude(lat, lng).alt) * CurrentState.multiplieralt);
-                        int newh = (int) (ans + newsrtm - oldsrtm);
+                        int newsrtm = (int)((srtm.getAltitude(lat, lng).alt) * CurrentState.multiplieralt);
+                        int newh = (int)(ans + newsrtm - oldsrtm);
 
                         cell.Value = newh;
 
@@ -1155,8 +1161,27 @@ namespace MissionPlanner.GCSViews
                 cell.Value = lng.ToString("0.0000000");
                 cell.DataGridView.EndEdit();
             }
-
-            if (alt != -1 && alt != -2 && Commands.Columns[Alt.Index].HeaderText.ToString().StartsWith("Alt"))
+            // --------------------------
+            int latDegrees, latMinutes, longDegrees, longMinutes;
+            double latSeconds, longSeconds;
+            char latDirection = (lat >= 0) ? 'N' : 'S'; // Determine North/South direction
+            char lonDirection = (lng >= 0) ? 'E' : 'W';
+            DecimalToDMS(lng, out longDegrees, out longMinutes, out longSeconds);
+            if (Commands.Columns[Lon_DMS.Index].HeaderText.Equals("Long (DMS)"))
+            {
+                cell = Commands.Rows[selectedrow].Cells[Lon_DMS.Index] as DataGridViewTextBoxCell;
+                cell.Value = longDegrees + "° " + longMinutes + "' " + longSeconds.ToString("0.0000000") + "\" " + lonDirection;
+                cell.DataGridView.EndEdit();
+            }
+            // --------------------------
+            DecimalToDMS(lat, out latDegrees, out latMinutes, out latSeconds);
+            if (Commands.Columns[Lat_DMS.Index].HeaderText.Equals("Lat (DMS)"))
+            {
+                cell = Commands.Rows[selectedrow].Cells[Lat_DMS.Index] as DataGridViewTextBoxCell;
+                cell.Value = latDegrees + "° " + latMinutes + "' " + latSeconds.ToString("0.0000000") + "\" " + latDirection;
+                cell.DataGridView.EndEdit();
+            }
+            if (alt != -1 && alt != -2 && Commands.Columns[Alt.Index].HeaderText.Equals("Alt"))
             {
                 cell = Commands.Rows[selectedrow].Cells[Alt.Index] as DataGridViewTextBoxCell;
 
@@ -1194,7 +1219,7 @@ namespace MissionPlanner.GCSViews
                 float ans;
                 if (float.TryParse(cell.Value.ToString(), out ans))
                 {
-                    ans = (int) ans;
+                    ans = (int)ans;
                     if (alt != 0) // use passed in value;
                         cell.Value = alt.ToString();
                     if (ans == 0) // default
@@ -1206,14 +1231,14 @@ namespace MissionPlanner.GCSViews
                     if (CHK_verifyheight.Checked) // use srtm data
                     {
                         // is absolute but no verify
-                        if ((altmode) CMB_altmode.SelectedValue == altmode.Absolute)
+                        if ((altmode)CMB_altmode.SelectedValue == altmode.Absolute)
                         {
                             //abs
                             cell.Value =
                                 ((srtm.getAltitude(lat, lng).alt) * CurrentState.multiplieralt +
                                  int.Parse(TXT_DefaultAlt.Text)).ToString();
                         }
-                        else if ((altmode) CMB_altmode.SelectedValue == altmode.Terrain)
+                        else if ((altmode)CMB_altmode.SelectedValue == altmode.Terrain)
                         {
                             cell.Value = int.Parse(TXT_DefaultAlt.Text);
                         }
@@ -1221,7 +1246,7 @@ namespace MissionPlanner.GCSViews
                         {
                             //relative and verify
                             cell.Value =
-                                ((int) (srtm.getAltitude(lat, lng).alt) * CurrentState.multiplieralt +
+                                ((int)(srtm.getAltitude(lat, lng).alt) * CurrentState.multiplieralt +
                                  int.Parse(TXT_DefaultAlt.Text) -
                                  (int)
                                  srtm.getAltitude(MainV2.comPort.MAV.cs.PlannedHomeLocation.Lat,
@@ -1798,9 +1823,10 @@ namespace MissionPlanner.GCSViews
                 }
             }
 
+            Commands.Rows[selectedrow].Cells[Lat_DMS.Index].Value = "0° 0' 0.00\" S";
+            Commands.Rows[selectedrow].Cells[Lon_DMS.Index].Value = "0° 0' 0.00\" E";
             writeKML();
         }
-
         private void BUT_grid_Click(object sender, EventArgs e)
         {
         }
@@ -5314,7 +5340,7 @@ namespace MissionPlanner.GCSViews
 
                 foreach (object value in Enum.GetValues(typeof(MAVLink.MAV_CMD)))
                 {
-                    if ((ushort) value == temp.id)
+                    if ((ushort)value == temp.id)
                     {
                         if (Program.MONO || cellcmd.Items.Contains(value.ToString()))
                             cellcmd.Value = value.ToString();
@@ -5331,25 +5357,10 @@ namespace MissionPlanner.GCSViews
 
 
                 // from ap_common.h
-                if (temp.id == (ushort) MAVLink.MAV_CMD.WAYPOINT ||
-                    temp.id == (ushort) MAVLink.MAV_CMD.SPLINE_WAYPOINT ||
-                    temp.id == (ushort) MAVLink.MAV_CMD.TAKEOFF || temp.id == (ushort) MAVLink.MAV_CMD.DO_SET_HOME)
+                if (temp.id == (ushort)MAVLink.MAV_CMD.WAYPOINT ||
+                    temp.id == (ushort)MAVLink.MAV_CMD.SPLINE_WAYPOINT ||
+                    temp.id == (ushort)MAVLink.MAV_CMD.TAKEOFF || temp.id == (ushort)MAVLink.MAV_CMD.DO_SET_HOME)
                 {
-
-                    try
-                    {
-                        // cm/s - ac
-                        Spline2._wp_accel_cms = MainV2.comPort.MAV.param.ContainsKey("WPNAV_ACCEL") ? MainV2.comPort.MAV.param["WPNAV_ACCEL"].float_value : 100;
-                        Spline2._wp_speed_cms = MainV2.comPort.MAV.param.ContainsKey("WPNAV_SPEED") ? MainV2.comPort.MAV.param["WPNAV_SPEED"].float_value : 600;
-
-                        // ar
-                        //WP_ACCEL - m/s
-                        //WP_SPEED - m/s
-                    }
-                    catch
-                    {
-
-                    }
                     // not home
                     if (i != 0)
                     {
@@ -5358,25 +5369,48 @@ namespace MissionPlanner.GCSViews
                 }
 
                 DataGridViewComboBoxCell cellframe = Commands.Rows[i].Cells[Frame.Index] as DataGridViewComboBoxCell;
-                var multipliers = cmdParamMultipliers[cellcmd.Value.ToString()];
-                cellframe.Value = (int) temp.frame;
+                cellframe.Value = (int)temp.frame;
                 cell = Commands.Rows[i].Cells[Alt.Index] as DataGridViewTextBoxCell;
-                cell.Value = temp.alt * multipliers[6];
+                cell.Value = temp.alt * CurrentState.multiplieralt;
                 cell = Commands.Rows[i].Cells[Lat.Index] as DataGridViewTextBoxCell;
-                cell.Value = temp.lat * multipliers[4];
+                cell.Value = temp.lat;
                 cell = Commands.Rows[i].Cells[Lon.Index] as DataGridViewTextBoxCell;
-                cell.Value = temp.lng * multipliers[5];
+                cell.Value = temp.lng;
 
                 cell = Commands.Rows[i].Cells[Param1.Index] as DataGridViewTextBoxCell;
-                cell.Value = temp.p1 * multipliers[0];
+                cell.Value = temp.p1;
                 cell = Commands.Rows[i].Cells[Param2.Index] as DataGridViewTextBoxCell;
-                cell.Value = temp.p2 * multipliers[1];
+                cell.Value = temp.p2;
                 cell = Commands.Rows[i].Cells[Param3.Index] as DataGridViewTextBoxCell;
-                cell.Value = temp.p3 * multipliers[2];
+                cell.Value = temp.p3;
                 cell = Commands.Rows[i].Cells[Param4.Index] as DataGridViewTextBoxCell;
-                cell.Value = temp.p4 * multipliers[3];
-
+                cell.Value = temp.p4;
+                var l = ",)";
+                var s = "(";
+                //cell = Commands.Rows[i].Cells[Lat_DMS.Index] as DataGridViewTextBoxCell;
+                //cell.Value = temp.Lat_DMS.Replace(l, "").Replace(s, "");
+                //cell = Commands.Rows[i].Cells[Lon_DMS.Index] as DataGridViewTextBoxCell;
+                //cell.Value = temp.Lon_DMS.Replace(l,"").Replace(s,"");
                 // convert to utm/other
+                int latDegrees, latMinutes, longDegrees, longMinutes;
+                double latSeconds, longSeconds;
+                char latDirection = (temp.lat >= 0) ? 'N' : 'S'; // Determine North/South direction
+                char lonDirection = (temp.lng >= 0) ? 'E' : 'W';
+                DecimalToDMS(temp.lng, out longDegrees, out longMinutes, out longSeconds);
+                if (Commands.Columns[Lon_DMS.Index].HeaderText.Equals("Long (DMS)"))
+                {
+                    cell = Commands.Rows[selectedrow].Cells[Lon_DMS.Index] as DataGridViewTextBoxCell;
+                    cell.Value = longDegrees + "° " + longMinutes + "' " + longSeconds.ToString("0.0000000") + "\" " + lonDirection;
+                    cell.DataGridView.EndEdit();
+                }
+                // --------------------------
+                DecimalToDMS(temp.lat, out latDegrees, out latMinutes, out latSeconds);
+                if (Commands.Columns[Lat_DMS.Index].HeaderText.Equals("Lat (DMS)"))
+                {
+                    cell = Commands.Rows[selectedrow].Cells[Lat_DMS.Index] as DataGridViewTextBoxCell;
+                    cell.Value = latDegrees + "° " + latMinutes + "' " + latSeconds.ToString("0.0000000") + "\" " + latDirection;
+                    cell.DataGridView.EndEdit();
+                }
                 convertFromGeographic(temp.lat, temp.lng);
             }
 
@@ -5385,9 +5419,9 @@ namespace MissionPlanner.GCSViews
 
             setWPParams();
 
-            var type = (MAVLink.MAV_MISSION_TYPE) Invoke((Func<MAVLink.MAV_MISSION_TYPE>) delegate
+            var type = (MAVLink.MAV_MISSION_TYPE)Invoke((Func<MAVLink.MAV_MISSION_TYPE>)delegate
             {
-                return (MAVLink.MAV_MISSION_TYPE) cmb_missiontype.SelectedValue;
+                return (MAVLink.MAV_MISSION_TYPE)cmb_missiontype.SelectedValue;
             });
 
             if (!append && type == MAVLink.MAV_MISSION_TYPE.MISSION)
@@ -5403,13 +5437,14 @@ namespace MissionPlanner.GCSViews
                             var dr = CustomMessageBox.Show("Reset Home to loaded coords", "Reset Home Coords",
                                 MessageBoxButtons.YesNo);
 
-                            if (dr == (int) DialogResult.Yes)
+                            if (dr == (int)DialogResult.Yes)
                             {
                                 TXT_homelat.Text = (double.Parse(cellhome.Value.ToString())).ToString();
                                 cellhome = Commands.Rows[0].Cells[Lon.Index] as DataGridViewTextBoxCell;
                                 TXT_homelng.Text = (double.Parse(cellhome.Value.ToString())).ToString();
                                 cellhome = Commands.Rows[0].Cells[Alt.Index] as DataGridViewTextBoxCell;
-                                TXT_homealt.Text = double.Parse(cellhome.Value.ToString()).ToString("0.00");
+                                TXT_homealt.Text =
+                                    (double.Parse(cellhome.Value.ToString()) * CurrentState.multiplieralt).ToString();
                             }
                         }
                     }

@@ -420,6 +420,7 @@ namespace MissionPlanner.GCSViews
         public void Activate()
         {
             log.Info("Activate Called");
+            
 
             OnResize(EventArgs.Empty);
 

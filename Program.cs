@@ -31,6 +31,7 @@ using Newtonsoft.Json.Serialization;
 using Architecture = System.Runtime.InteropServices.Architecture;
 using Trace = System.Diagnostics.Trace;
 using System.Threading.Tasks;
+using ActivationKeyManagement;
 
 namespace MissionPlanner
 {
@@ -71,7 +72,7 @@ namespace MissionPlanner
 
         public static string[] names = new string[] {"VVVVZ"};
         public static bool MONO = false;
-
+        
         static Program()
         {
             AppDomain.CurrentDomain.AssemblyLoad += CurrentDomain_AssemblyLoad;
@@ -264,6 +265,39 @@ namespace MissionPlanner
             }
 
             Splash = new MissionPlanner.Splash();
+            // Activation Intigration
+            var Activation = new OfflineActivation();
+            Console.WriteLine(Activation.GenerateActivationKey(1));
+            var ActivationKey = "01C7-3F95-3BF0-3D22_MjAyNS0wMS0yMiAxMTowODowNnwyMDI1LTAyLTIx-";//Activation.GenerateActivationKey(30);
+            var validResult = Activation.ValidateActivationKey(ActivationKey);
+            if (!validResult.IsValid)
+            {
+                // Important: Call these in this specific order
+                Application.EnableVisualStyles();
+                Application.Run(new ActivationKeyGeneratorApp());
+                Application.Exit();
+                return;
+                //Application.EnableVisualStyles();
+                //Application.SetCompatibleTextRenderingDefault(false);
+                //Application.Run(new ActivationKeyGeneratorApp());
+                //DialogResult result = MessageBox.Show("Product key is required to use the application. Do you have Product Key", "Activation Required", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                //if (result == DialogResult.No)
+                //{
+                //    Application.Exit();
+                //}
+                //else if(result == DialogResult.Yes)
+                //{
+                //    //if (InputBox.Show("Activation", "Please enter your prduct key or click on Cancel to continue", ref pw, true) ==
+                //    //System.Windows.Forms.DialogResult.OK);
+                //}
+            }
+            else
+            {
+                MessageBox.Show("Activation Verified!");
+            }
+
+
+            //---------------------------
             if (SplashBG != null)
             {
                 Splash.BackgroundImage = SplashBG;
@@ -282,6 +316,7 @@ namespace MissionPlanner
             Splash.Show();
 
             Console.WriteLine("Debugger.IsAttached " + Debugger.IsAttached);
+
             if (Debugger.IsAttached)
                 Splash.TopMost = false;
 

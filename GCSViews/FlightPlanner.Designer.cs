@@ -188,6 +188,7 @@ namespace MissionPlanner.GCSViews
             this.kMLOverlayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.elevationGraphToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.reverseWPsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.gDALOpacityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileLoadSaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadWPFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadAndAppendToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -224,7 +225,8 @@ namespace MissionPlanner.GCSViews
             this.zoomToVehicleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zoomToMissionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.zoomToHomeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.gDALOpacityToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.Lat_DMS = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Lon_DMS = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel5.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panelWaypoints.SuspendLayout();
@@ -504,7 +506,9 @@ namespace MissionPlanner.GCSViews
             this.Angle,
             this.Dist,
             this.AZ,
-            this.TagData});
+            this.TagData,
+            this.Lat_DMS,
+            this.Lon_DMS});
             this.Commands.Name = "Commands";
             dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control;
             dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -718,6 +722,7 @@ namespace MissionPlanner.GCSViews
             // 
             resources.ApplyResources(this.BUT_InjectCustomMap, "BUT_InjectCustomMap");
             this.BUT_InjectCustomMap.Name = "BUT_InjectCustomMap";
+            this.BUT_InjectCustomMap.TextColorNotEnabled = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(87)))), ((int)(((byte)(4)))));
             this.BUT_InjectCustomMap.UseVisualStyleBackColor = true;
             this.BUT_InjectCustomMap.Click += new System.EventHandler(this.BUT_InjectCustomMap_Click);
             // 
@@ -1303,6 +1308,12 @@ namespace MissionPlanner.GCSViews
             resources.ApplyResources(this.reverseWPsToolStripMenuItem, "reverseWPsToolStripMenuItem");
             this.reverseWPsToolStripMenuItem.Click += new System.EventHandler(this.reverseWPsToolStripMenuItem_Click);
             // 
+            // gDALOpacityToolStripMenuItem
+            // 
+            this.gDALOpacityToolStripMenuItem.Name = "gDALOpacityToolStripMenuItem";
+            resources.ApplyResources(this.gDALOpacityToolStripMenuItem, "gDALOpacityToolStripMenuItem");
+            this.gDALOpacityToolStripMenuItem.Click += new System.EventHandler(this.gDALOpacityToolStripMenuItem_Click);
+            // 
             // fileLoadSaveToolStripMenuItem
             // 
             this.fileLoadSaveToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -1536,11 +1547,15 @@ namespace MissionPlanner.GCSViews
             resources.ApplyResources(this.zoomToHomeToolStripMenuItem, "zoomToHomeToolStripMenuItem");
             this.zoomToHomeToolStripMenuItem.Click += new System.EventHandler(this.zoomToHomeToolStripMenuItem_Click);
             // 
-            // gDALOpacityToolStripMenuItem
+            // Lat_DMS
             // 
-            this.gDALOpacityToolStripMenuItem.Name = "gDALOpacityToolStripMenuItem";
-            resources.ApplyResources(this.gDALOpacityToolStripMenuItem, "gDALOpacityToolStripMenuItem");
-            this.gDALOpacityToolStripMenuItem.Click += new System.EventHandler(this.gDALOpacityToolStripMenuItem_Click);
+            resources.ApplyResources(this.Lat_DMS, "Lat_DMS");
+            this.Lat_DMS.Name = "Lat_DMS";
+            // 
+            // Lon_DMS
+            // 
+            resources.ApplyResources(this.Lon_DMS, "Lon_DMS");
+            this.Lon_DMS.Name = "Lon_DMS";
             // 
             // FlightPlanner
             // 
@@ -1750,5 +1765,7 @@ namespace MissionPlanner.GCSViews
         private MyButton BUT_InjectCustomMap;
         private ProgressBar progressBarInjectCustomMap;
         private NumericUpDown Zoomlevel;
+        private DataGridViewTextBoxColumn Lat_DMS;
+        private DataGridViewTextBoxColumn Lon_DMS;
     }
 }

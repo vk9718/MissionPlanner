@@ -632,6 +632,7 @@ namespace MissionPlanner
 
         public MainV2()
         {
+            
             log.Info("Mainv2 ctor");
 
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
@@ -3157,7 +3158,7 @@ namespace MissionPlanner
             catch
             {
             }
-
+            
             MyView.AddScreen(new MainSwitcher.Screen("FlightData", FlightData, true));
             MyView.AddScreen(new MainSwitcher.Screen("FlightPlanner", FlightPlanner, true));
             MyView.AddScreen(new MainSwitcher.Screen("HWConfig", typeof(GCSViews.InitialSetup), false));
@@ -3879,6 +3880,8 @@ namespace MissionPlanner
             Enum.TryParse(inactiveDisplayStyleStr, out inactiveDisplayStyle);
             GMapMarkerBase.InactiveDisplayStyle = inactiveDisplayStyle;
             Settings.Instance["GMapMarkerBase_InactiveDisplayStyle"] = inactiveDisplayStyle.ToString();
+
+            
         }
 
         private void BGLogMessagesMetaData(object nothing)
